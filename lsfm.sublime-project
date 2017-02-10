@@ -1,0 +1,17 @@
+{
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"lsfm.sublime-workspace",
+				".DS_Store"
+			],
+			"folder_exclude_patterns":
+			[
+				"stitching_test"
+			],
+			"path": "."
+		}
+	]
+}
