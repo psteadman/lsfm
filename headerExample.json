@@ -1,0 +1,12 @@
+{ 
+    "cleartype":"CLARITY",
+    "magnification":1.25,
+    "exposureTime":2000,
+    "stepsX":2, 
+    "stepsY":3,
+    "stepsZ":270,    
+    "nChannels":1,
+    "nSheets":2,
+    "overlap":0.2,
+    "sliceGap":20
+}
