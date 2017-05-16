@@ -9,5 +9,6 @@
     "nChannels":1,
     "nSheets":2,
     "overlap":0.2,
-    "sliceGap":20
+    "sliceGap":20,
+    "paramBlending":0
 }

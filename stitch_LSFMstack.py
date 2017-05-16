@@ -22,17 +22,17 @@ def stitch_images(img1, img2, paramOverlap, paramArrangement, paramBlending):
 	paramArrangement:
 		axis to blend in. 0 for x, 1 for y
 	paramBlending:
-	1 Linear blending: In the overlapping area the intensity 
+	0 Linear blending: In the overlapping area the intensity 
 		are smoothly adjusted between the two images.
 		opencv cv2.AddWeighted() 
 		see -> http://docs.opencv.org/2.4/modules/core/doc/operations_on_arrays.html
-	2 Average: In the overlapping area the average intensity 
+	1 Average: In the overlapping area the average intensity 
 		between all images is computed (example source code).
-	3 Median: In the overlapping area the median intensity of 
+	2 Median: In the overlapping area the median intensity of 
 		all images is computed.
-	4 Max. Intensity: In the overlapping area the maximum 
+	3 Max. Intensity: In the overlapping area the maximum 
 		intensity between all images is used int the output image.
-	5 Min. Intensity: In the overlapping area the minimum 
+	4 Min. Intensity: In the overlapping area the minimum 
 		intensity between all images is used int the output image.
 	'''
 
@@ -47,24 +47,32 @@ def stitch_images(img1, img2, paramOverlap, paramArrangement, paramBlending):
 				   img2.shape[paramArrangement] )
 
 	listParamBlending = ['blend','mean','median','max','min']
-	if paramBlending == listParamBlending[0]:
+	if paramBlending == 0: #listParamBlending[0]:
 		# blending param of 1.5 
 		img_ol = numpy.average(numpy.dstack(img1_ol,img2_ol),axis=2, 
 				weights=numpy.full(numpy.dstack((img1_ol,img2_ol)).shape, 1.5) )
-	elif paramBlending == listParamBlending[1]:
+	elif paramBlending == 1: #listParamBlending[1]:
 		img_ol = numpy.mean(numpy.dstack((img1_ol,img2_ol)),2)
-	elif paramBlending == listParamBlending[2]:
+	elif paramBlending == 2: #listParamBlending[2]:
 		img_ol = numpy.median(numpy.dstack((img1_ol,img2_ol)),2)
-	elif paramBlending == listParamBlending[3]:
+	elif paramBlending == 3: #listParamBlending[3]:
 		img_ol = numpy.max(numpy.dstack((img1_ol,img2_ol)),2)
-	elif paramBlending == listParamBlending[4]:
+	elif paramBlending == 4: #listParamBlending[4]:
 		img_ol = numpy.min(numpy.dstack((img1_ol,img2_ol)),2)
 	else:
 		print('incorrect blending options given, choose from: {}').format(listParamBlending)
 
 	# Put the images together
-	img_stitched = numpy.concatenate(img1_top, img_ol,, img2_bottom paramArrangement)
+	return( numpy.concatenate(img1_top, img_ol, img2_bottom, paramArrangement) )
 
+def stitch_seq_image_list(imglist,paramOverlap,paramArrangement,paramBlending):
+	# assume list is in order
+	tmplist = imglist
+	# if only 1 step thus 1 image should skip while loop?
+	while len(tmplist > 1):
+		tmplist = [stitch_images(tmplist[x],tmplist[x+1],paramOverlap,paramArrangement,paramBlending) for x in range(len(tmplist-1))]		
+	# return the final image
+	return(tmplist[0])
 
 if __name__ == "__main__":
 	description = """
@@ -91,16 +99,16 @@ if __name__ == "__main__":
             nSheets = imageheader["nSheets"]
             overlap = imageHeader["overlap"]
             imageName = imageHeader["imageName"]
+            paramBlending = imageHeader["paramBlending"]
     else:
         print("Missing header json file")
 
     # handle output directory create for each channel
 	for i in range(1,nChannels):
-		outputdirList[i] = args.outputdir+"/"+imageName+"_channel"+str(i) 
+		outputdirList[i] = args.outputdir+"/"+imageName+"_channel"+str(i)+"/" 
 		os.mkdir(outputdirList[i])
 
-	for r in range(stepsZ):
-		
+	for r in range(stepsZ): 
 		# find files in that step
 		filesZ = glob.glob(args.inputdir+"/*/"+str(r).zfill(4)+"*.tif")
 		
@@ -109,28 +117,43 @@ if __name__ == "__main__":
 			re.compile( "UltraFilter"+str(channel).zfill(4) )
 			filesZsingleChannel = [image for image in filesZ if re.search(image) != None]
 			
-			# separate by light sheet
-			for sheet in range(1):
-				re.compile( "C"+str(sheet).zfill(2) )
-				filesZsingleChannelsingleSheet = [image for image in filesZsingleChannel if re.search(image) != None]
+			# empty list for images to be put in
+			imagesZsingleChannelX_stitchedY = [0 for x in range(stepsX-1)]
+			
+			# separate by tile
+			for tileX in range(stepsX-1):
+				re.compile( "["+str(tileX).zfill(2)+" x " )
+				filesZsingleTileX = [image for image in filesZsingleChannel if re.search(image) != None]
+				
+				# empty list for images to be put in
+				imagesZsingleChannelY = [0 for y in range(stepsY-1)]
 
-				# read in images
-				filename = os.path.basename(args.imgs[r],'.tif') #helpful?
-				img = scipy.ndimage.imread(args.imgs[r], flatten=True) 
-				# confirm 16 bit with dtype
-		# image info patterns is [?? x ??] use this as its constant (as long as we have x and y devices used)
+				for tileY in range (stepsY-1):
+					re.compile( "["+str(tileX).zfill(2)+" x "+str(tileY).zfill(2)+"]" )
+					filesZsingleTileXY = [image for image in filesZsingleTileX if re.search(image) != None]
+					
+					if len(filesZsingleTileXY == 2):
+						# we have 2 sheets and we combine based on max
+						imagesZsingleChannelY[tileY] = numpy.max( numpy.dstack(
+							scipy.ndimage.imread(filesZsingleTileXY[0], flatten=True),
+							scipy.ndimage.imread(filesZsingleTileXY[1], flatten=True) ),
+							2)
+						# Should I check these at 16 bit images when I read them in?
+					elif len(filesZsingleTileXY == 1):
+						imagesZsingleChannelY[tileY] = scipy.ndimage.imread(filesZsingleTileXY[0], flatten=True)
+					else:
+						print("Something went wrong in combining sheets")
+
+
+				# stitch the Ys together
+				imagesZsingleChannelX_stitchedY[tileX] = stitch_seq_image_list(imagesZsingleChannelY,overlap,1,paramBlending)
+
+			# stitch the Xs together - generalize for any number of X positions
+			imageZsingleChannel = stitch_seq_image_list(imagesZsingleChannelX_stitchedY,overlap,0,paramBlending)
+			out = outputdirList[channel]+filename+'_'+str(r.zfill(4))+'.tif' 
+			print(out); cv2.imwrite(out,imageZsingleChannel)
 		
-		# stitch images together (and repeat for other sheet)
-		# for stepsX stitch
-		for x in range(stepsX-1):
-			# img1[x], img2[x+1]
-			img_x = stitch_images(img1, img2, overlap, 0, 0)
-		# for output and stepsY stitch
-
-		# merge sheets based on max intensities
-
-		# write stitched and merged z-stack[r] image to channel directory
-		# save with cv2 so 16 bit
-		out = args.outputdir+filename+'_'+str(r.zfill(4))+'.tif' 
-		print(out); scipy.misc.imsave(out,img)
-
+# image info patterns is [?? x ??] use this as its constant (as long as we have x and y devices used)
+# stitch images together (and repeat for other sheet)
+# write stitched and merged z-stack[r] image to channel directory
+# save with cv2 so 16 bit
