@@ -60,3 +60,19 @@ fi
 
 cd -
 done
+
+#same thing again
+for folder in art4*; do  echo "IMAGE" $folder;  
+cd $folder; echo "STARTING DIRECTORY" $PWD; 
+rename "s/ //g" s0/*; rename "s/ //g" s1/*; 
+if [[ -d s1 ]] ; then echo s1 exists; 
+	for file in s1/*_????.tif; do  dir=`dirname $file`;  base=`basename $file .tif`;  mv $file ${dir}/${base}_s1.tif; done; 
+fi;  
+if [[ -d s0 ]] ; then echo s0 exists; 
+	for file in s0/*_????.tif; 
+	do  dir=`dirname $file`;  base=`basename $file .tif`;  mv $file ${dir}/${base}_s0.tif; 
+done; 
+mkdir combined; 
+fiji --headless -macro ~/Dropbox/mbp/bin/combineSheets.ijm \
+/projects2/psteadman/art_10wk_encoding/img_tif/${folder}/s0/:/projects2/psteadman/art_10wk_encoding/img_tif/${folder}/s1/:/projects2/psteadman/art_10wk_encoding/img_tif/${folder}/combined/; 
+fi;  cd -; done

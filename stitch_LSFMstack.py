@@ -6,13 +6,12 @@
 # Frankland lab 2017
 # Contributors: Patrick Steadman
 
-import argparse
+import argparse, os, glob, re
+import numpy, json
+
 import skimage
 import scipy.misc
-import os, sys
-import numpy
 import cv2
-import json
 
 def stitch_images(img1, img2, paramOverlap, paramArrangement, paramBlending):
 	'''
@@ -50,16 +49,16 @@ def stitch_images(img1, img2, paramOverlap, paramArrangement, paramBlending):
 	listParamBlending = ['blend','mean','median','max','min']
 	if paramBlending == listParamBlending[0]:
 		# blending param of 1.5 
-		img_ol = np.average(numpy.dstack(img1_ol,img2_ol),axis=2, 
+		img_ol = numpy.average(numpy.dstack(img1_ol,img2_ol),axis=2, 
 				weights=numpy.full(numpy.dstack((img1_ol,img2_ol)).shape, 1.5) )
 	elif paramBlending == listParamBlending[1]:
-		img_ol = np.mean(numpy.dstack((img1_ol,img2_ol)),2)
+		img_ol = numpy.mean(numpy.dstack((img1_ol,img2_ol)),2)
 	elif paramBlending == listParamBlending[2]:
-		img_ol = np.median(numpy.dstack((img1_ol,img2_ol)),2)
+		img_ol = numpy.median(numpy.dstack((img1_ol,img2_ol)),2)
 	elif paramBlending == listParamBlending[3]:
-		img_ol = np.max(numpy.dstack((img1_ol,img2_ol)),2)
+		img_ol = numpy.max(numpy.dstack((img1_ol,img2_ol)),2)
 	elif paramBlending == listParamBlending[4]:
-		img_ol = np.min(numpy.dstack((img1_ol,img2_ol)),2)
+		img_ol = numpy.min(numpy.dstack((img1_ol,img2_ol)),2)
 	else:
 		print('incorrect blending options given, choose from: {}').format(listParamBlending)
 
@@ -70,18 +69,18 @@ def stitch_images(img1, img2, paramOverlap, paramArrangement, paramBlending):
 if __name__ == "__main__":
 	description = """
 	Input is directory containing images from LSFM
-	Output is directory containing z-stack of stitched and combined images
+	Output is directories containing z-stack of stitched and combined images for each channel
 	"""
 	parser = argparse.ArgumentParser(description=description)
 	parser.add_argument('-i','--input-directory',dest='inputdir',
 		help='LSFM raw stack directory')
 	parser.add_argument('-o','--output-directory',dest='outputdir'
-		help='output directory for z-stack, will create one for each channel')
+		help='Directory where output directories of the z-stack \
+		will be created for each channel')
 	parser.add_argument('-h','--header-json',dest='imageheader',
 		help='json file with image meta-data',default=None)
 	args = parser.parse_args()
 
-	filename = args.inputdir
 	if args.imageheader is not None:
         with open(args.imageheader,'r') as fp:
             imageHeader = json.load(fp)
@@ -91,24 +90,36 @@ if __name__ == "__main__":
             nChannels = imageheader["nChannels"]
             nSheets = imageheader["nSheets"]
             overlap = imageHeader["overlap"]
+            imageName = imageHeader["imageName"]
     else:
         print("Missing header json file")
 
-    # handle output directory
-    # create for each channel
+    # handle output directory create for each channel
+	for i in range(1,nChannels):
+		outputdirList[i] = args.outputdir+"/"+imageName+"_channel"+str(i) 
+		os.mkdir(outputdirList[i])
 
 	for r in range(stepsZ):
+		
 		# find files in that step
-
+		filesZ = glob.glob(args.inputdir+"/*/"+str(r).zfill(4)+"*.tif")
+		
 		# separate by channel
+		for channel in nChannels:
+			re.compile( "UltraFilter"+str(channel).zfill(4) )
+			filesZsingleChannel = [image for image in filesZ if re.search(image) != None]
+			
+			# separate by light sheet
+			for sheet in range(1):
+				re.compile( "C"+str(sheet).zfill(2) )
+				filesZsingleChannelsingleSheet = [image for image in filesZsingleChannel if re.search(image) != None]
 
-		# separate by light sheet
-
-		# read in images
-		filename = os.path.basename(args.imgs[r],'.tif') #helpful?
-		img = scipy.ndimage.imread(args.imgs[r], flatten=True) 
-		# confirm 16 bit with dtype
-
+				# read in images
+				filename = os.path.basename(args.imgs[r],'.tif') #helpful?
+				img = scipy.ndimage.imread(args.imgs[r], flatten=True) 
+				# confirm 16 bit with dtype
+		# image info patterns is [?? x ??] use this as its constant (as long as we have x and y devices used)
+		
 		# stitch images together (and repeat for other sheet)
 		# for stepsX stitch
 		for x in range(stepsX-1):
