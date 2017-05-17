@@ -4,11 +4,8 @@
 		{
 			"file_exclude_patterns":
 			[
-				"*.sublime-workspace",
-				".DS_Store",
-				"*.sublime-project",
-				"LICENSE",
-				".gitignore"
+				"lsfm.sublime-workspace",
+				".DS_Store"
 			],
 			"folder_exclude_patterns":
 			[
