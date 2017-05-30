@@ -95,7 +95,7 @@ def stitch_seq_image_list(imglist,paramOverlap,paramArrangement,paramBlending):
 	# assume list is in order
 	tmplist = imglist
 	for x in range(len(tmplist)-1):
-		tmplist[0] = stitch_images_v2(tmplist[0],tmplist[x+1],paramOverlap,paramArrangement,paramBlending)
+		tmplist[0] = stitch_images(tmplist[0],tmplist[x+1],paramOverlap,paramArrangement,paramBlending)
 
 		# tmplist = [ stitch_images(tmplist[x],tmplist[x+1],paramOverlap,paramArrangement,paramBlending) for x in range(len(tmplist)) ]		
 	# return the final image
@@ -139,8 +139,11 @@ if __name__ == "__main__":
 			os.mkdir(outputdirList[i])
 
 	for r in range(stepsZ): 
+		# fault in that r starts at 0 so stepsZ must be 1 more than last Z
 		# find files in that step
-		filesZ = glob.glob(args.inputdir+"/*"+str(r).zfill(4)+"*.tif")
+		# assumes tif file and z is the only 4 digit number.
+		filesZ = glob.glob(args.inputdir+"/*"+str(r).zfill(4)+"*.???")
+		# print(stepsZ, r, filesZ)
 		
 		# separate by channel
 		for channel in range(nChannels):
@@ -174,16 +177,17 @@ if __name__ == "__main__":
 
 					if len(filesZsingleTileXY) == 2:
 						# we have 2 sheets and we combine based on max
-						imagesZsingleChannelY[tileY] = skimage.exposure.rescale_intensity( 
-							numpy.amax( numpy.dstack((
+						#imagesZsingleChannelY[tileY] = skimage.exposure.rescale_intensity( 
+						imagesZsingleChannelY[tileY] =	numpy.amax( numpy.dstack((
 							scipy.ndimage.imread(filesZsingleTileXY[0], flatten=True),
 							scipy.ndimage.imread(filesZsingleTileXY[1], flatten=True) )),
-							2), out_range=(0, 1) )
+							2)
+						#, out_range=(0, 1) )
 						# Should I check these at 16 bit images when I read them in?
 					elif len(filesZsingleTileXY) == 1:
-						imagesZsingleChannelY[tileY] = skimage.exposure.rescale_intensity(
-							scipy.ndimage.imread(filesZsingleTileXY[0], flatten=True), 
-							out_range=(0, 1) )
+						# imagesZsingleChannelY[tileY] = skimage.exposure.rescale_intensity(
+						imagesZsingleChannelY[tileY] =	scipy.ndimage.imread(filesZsingleTileXY[0], flatten=True)
+							#, out_range=(0, 1) )
 					else:
 						print("Something went wrong in combining sheets")
 

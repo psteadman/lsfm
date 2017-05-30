@@ -8,7 +8,7 @@
     "stepsZ":300,    
     "nChannels":1,
     "nSheets":2,
-    "overlap":0.2,
+    "overlap":0.18,
     "sliceGap":20,
     "paramBlending":0
 }
