@@ -1,0 +1,14 @@
+{ 
+    "cleartype":"TEST",
+    "imageName":"circleTest3x3",
+    "magnification":1,
+    "exposureTime":2000,
+    "stepsX":3, 
+    "stepsY":3,
+    "stepsZ":2,    
+    "nChannels":1,
+    "nSheets":1,
+    "overlap":0.18,
+    "sliceGap":0,
+    "paramBlending":0
+}

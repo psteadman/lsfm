@@ -142,17 +142,16 @@ if __name__ == "__main__":
 		# fault in that r starts at 0 so stepsZ must be 1 more than last Z
 		# find files in that step
 		# assumes tif file and z is the only 4 digit number.
-		filesZ = glob.glob(args.inputdir+"/*"+str(r).zfill(4)+"*.???")
+		filesZ = glob.glob(args.inputdir+"/*Z"+str(r).zfill(4)+"*.???")
 		# print(stepsZ, r, filesZ)
 		
 		# separate by channel
 		for channel in range(nChannels):
 			if nChannels > 1:
-				patternChannel = re.compile( "UltraFilter"+str(channel).zfill(4) )
+				patternChannel = re.compile( "Filter"+str(channel).zfill(4) )
 				filesZsingleChannel = [image for image in filesZ if patternChannel.search(image) != None]
 			else:
 				filesZsingleChannel = filesZ
-
 			# if no files at z-step break this iteration
 			if len(filesZsingleChannel) < 1:
 				break
