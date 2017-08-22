@@ -31,7 +31,7 @@ echo fiji --headless -macro ~/Dropbox/mbp/bin/combineSheets.ijm \
 
 # is there a way to combine tif stack to hdf5 file format
 
-for folder in 17f-17*; do 
+for folder in 17f-2*; do 
 
 echo "IMAGE" $folder; 
 cd $folder;
@@ -55,7 +55,7 @@ base=`basename $file .tif`;
 mv $file ${dir}/${base}_s0.tif
 done
 mkdir combined
-fiji --headless -macro ~/Dropbox/mbp/bin/combineSheets.ijm /media/psteadman/lightsheetZF1/LSFM_Data/Atlas/stitched_data/${folder}/s0/:/media/psteadman/lightsheetZF1/LSFM_Data/Atlas/stitched_data/${folder}/s1/:/media/psteadman/lightsheetZF1/LSFM_Data/Atlas/stitched_data/${folder}/combined/;
+fiji --headless -macro ~/Dropbox/mbp/bin/combineSheets.ijm /media/psteadman/lightsheetZF1/LSFM_Data/Atlas/HuCD/stitched_data/${folder}/s0/:/media/psteadman/lightsheetZF1/LSFM_Data/Atlas/HuCD/stitched_data/${folder}/s1/:/media/psteadman/lightsheetZF1/LSFM_Data/Atlas/HuCD/stitched_data/${folder}/combined/;
 fi
 
 cd -
