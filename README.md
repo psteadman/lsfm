@@ -3,6 +3,7 @@
 ## STATUS - DOES NOT WORK PROPERLY. Details below. 
 
 512 x 512 image split to make a test case.
+\newline
 ![alt text](./testSet/circlesBrightDark.png?raw=true "Test image")
 
 ## Results as of 2017-09
