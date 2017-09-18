@@ -5,7 +5,7 @@
 # For input tif, add data to expand image in specified dimensions and directions
 
 import skimage, scipy.ndimage, cv2, numpy
-import argparse, os 
+import argparse
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()

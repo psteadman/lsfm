@@ -6,6 +6,8 @@
 # Finds largest of each dimension and zero pads all others to the same dimensions
 # Zero pads an equal amount in both directions
 
+# Turned out to be not useful
+
 import skimage, scipy.ndimage, cv2, numpy
 import argparse, glob, os 
 

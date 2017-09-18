@@ -15,7 +15,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	# parser.add_argument('--intended',dest='intendedOLAxis', type=int,
 	# 	help='Intended overlap in FIJI output of stitched image axis in pixels')
-	parser.add_argument('--computed',dest='computedAxis', type=int,
+	parser.add_argument('--computed',dest='computedAxis', type=int, default=0,
 		help='Estimate overlap in FIJI output of stitched image axis in pixels')
 	parser.add_argument('--tile',dest='originalTileAxis', type=int,
 		help='Raw tile image axis in pixels', default=2160)
@@ -27,6 +27,9 @@ if __name__ == "__main__":
 		nOverlaps = 4
 	if args.numberOfTiles == 2:
 		nOverlaps = 2
+	if args.computedAxis == 0:
+		print("Need to give estimate overlap axis value"); exit()
+
 	est_ol = 2*(args.numberOfTiles*args.originalTileAxis - args.computedAxis)/(nOverlaps*args.originalTileAxis)
 	print(numpy.round(est_ol, decimals=3))
 
