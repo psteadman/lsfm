@@ -2,8 +2,7 @@
 # Josselyn-Frankland lab 2017
 # author: pesteadman
 
-# I look at the new height of the image and subtract that from 2x's the original height.
-# Then I believe I divided that number by 2x's original height
+# assumes tiles/images are all the same size
 
 # 2560 x 2160 - tile dims
 # 4608 x 5616 - 20% ol stitched dims
@@ -22,14 +21,11 @@ if __name__ == "__main__":
 	parser.add_argument('--ntiles',dest='numberOfTiles', type=int,
 		help='Number of tiles along the axis given in --tile for the final stitched image', default=3)
 	args = parser.parse_args()
-
-	if args.numberOfTiles == 3:
-		nOverlaps = 4
-	if args.numberOfTiles == 2:
-		nOverlaps = 2
+		
 	if args.computedAxis == 0:
 		print("Need to give estimate overlap axis value"); exit()
 
+	nOverlaps = 2*(args.numberOfTiles-1)
 	est_ol = 2*(args.numberOfTiles*args.originalTileAxis - args.computedAxis)/(nOverlaps*args.originalTileAxis)
 	print(numpy.round(est_ol, decimals=3))
 

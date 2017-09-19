@@ -73,6 +73,7 @@ def stitch_images(img1, img2, paramOverlap, paramArrangement, paramBlending):
 
 	# Put the images together - this doesnt seem to be the best way, oddly?
 	print("output shape: ", numpy.concatenate((img1_residual, img_ol, img2_residual), axis=paramArrangement).shape )
+
 	return( numpy.concatenate((img1_residual, img_ol, img2_residual), axis=paramArrangement) )
 
 def stitch_images_v2(img1, img2, paramOverlap, paramArrangement, paramBlending):
@@ -130,6 +131,9 @@ if __name__ == "__main__":
 	else:
 		print("Missing header json file")
 
+	if not os.path.isdir(args.outputdir):
+		os.mkdir(args.outputdir)
+
 	# handle output directory create for each channel
 	outputdirList = [0 for x in range(nChannels)]
 	for i in range(nChannels):
@@ -168,6 +172,7 @@ if __name__ == "__main__":
 				# empty list for images to be put in
 				imagesZsingleChannelY = [0 for y in range(stepsY)]
 
+				# stitching in y first
 				for tileY in range (stepsY):
 					print("running tileY: "+str(tileY))
 					patternY = re.compile( "\["+str(tileX).zfill(2)+" x "+str(tileY).zfill(2)+"\]" )
